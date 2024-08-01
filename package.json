@@ -1,0 +1,23 @@
+{
+  "name": "nn",
+  "version": "1.0.0",
+  "description": "ecommerce",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon backend/server.js",
+    "dev": "set NODE_ENV=development&& nodemon backend/server.js",
+    "prod": "set NODE_ENV=production&& nodemon backend/server.js",
+    "seeder":"node backend/utils/seeder.js"
+
+  },
+  "author": "ananthakrishnan",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
