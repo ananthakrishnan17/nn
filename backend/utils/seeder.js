@@ -1,18 +1,25 @@
-const products = require('../data/products.json');
-const Product = require('../models/productModel');
-const dotenv = require('dotenv');
-const connectDatabase = require('../config/database')
-dotenv.config({path:'backend/config/config.env'});
-connectDatabase();
-const seedProducts = async ()=>{
-    try{
-   await Product.deleteMany();
-   console.log('products deleted!')
-   await Product.insertMany(products);
-   console.log('All products added!');
-    }catch(error){
-        console.log(error.message);
+const sendToken = (user, statusCode, res) => {
+
+    //Creating JWT Token
+    const token = user.getJwtToken();
+
+    //setting cookies 
+    const options = {
+        expires: new Date(
+                Date.now() + process.env.COOKIE_EXPIRES_TIME  * 24 * 60 * 60 * 1000 
+            ),
+        httpOnly: true,
     }
-    process.exit();
+
+    res.status(statusCode)
+    .cookie('token', token, options)
+    .json({
+        success: true,
+        token,
+        user
+    })
+
+
 }
-seedProducts();
+
+module.exports = sendToken;

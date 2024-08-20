@@ -1,33 +1,54 @@
-module.exports = (err, req, res, next) => {
-    err.statusCode = err.statusCode || 500;
+module.exports = (err, req, res, next) =>{
+    err.statusCode  = err.statusCode || 500;
 
-    if (process.env.NODE_ENV === 'development') {
-        // Development mode: show full error details
+
+    if(process.env.NODE_ENV == 'development'){
         res.status(err.statusCode).json({
             success: false,
             message: err.message,
             stack: err.stack,
             error: err
-        });
-    } else if (process.env.NODE_ENV === 'production') {
-        let message = err.message;
-        let error = { ...err };
+        })
+    }
 
-        // Handle validation errors
-        if (err.name === "ValidationError") {
-            message = Object.values(err.errors).map(value => value.message).join(', ');
-            error = new Error(message);
+    if(process.env.NODE_ENV == 'production'){
+        let message = err.message;
+        let error = new Error(message);
+       
+
+        if(err.name == "ValidationError") {
+            message = Object.values(err.errors).map(value => value.message)
+            error = new Error(message)
+            err.statusCode = 400
         }
 
-        // Handle cast errors
-        if (err.name === 'CastError') {
-            message = `Resource not found: Invalid ${err.path}`;
-            error = new Error(message);
+        if(err.name == 'CastError'){
+            message = `Resource not found: ${err.path}` ;
+            error = new Error(message)
+            err.statusCode = 400
+        }
+
+        if(err.code == 11000) {
+            let message = `Duplicate ${Object.keys(err.keyValue)} error`;
+            error = new Error(message)
+            err.statusCode = 400
+        }
+
+        if(err.name == 'JSONWebTokenError') {
+            let message = `JSON Web Token is invalid. Try again`;
+            error = new Error(message)
+            err.statusCode = 400
+        }
+
+        if(err.name == 'TokenExpiredError') {
+            let message = `JSON Web Token is expired. Try again`;
+            error = new Error(message)
+            err.statusCode = 400
         }
 
         res.status(err.statusCode).json({
             success: false,
-            message: message || 'Internal Server Error',
-        });
+            message: error.message || 'Internal Server Error',
+        })
     }
-};
+}

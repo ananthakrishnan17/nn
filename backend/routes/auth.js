@@ -1,7 +1,53 @@
 const express = require('express');
-const { registerUser,loginUser } = require('../controllers/authController');
-const router = express.Router();
-router.route('/register').post(registerUser);
-router.route('/login').post(loginUser);
-module.exports = router;
+const multer = require('multer');
+const path = require('path');
 
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function(req, file, cb) {
+      // Ensure the directory exists or handle errors appropriately
+      cb(null, path.join(__dirname, '..', 'uploads', 'user'));
+    },
+    filename: function(req, file, cb) {
+      // Use a unique filename to avoid overwriting files with the same name
+      cb(null, Date.now() + path.extname(file.originalname));
+    }
+  })
+});
+
+const { 
+  registerUser,
+  loginUser,
+  logoutUser,
+  forgotPassword,
+  resetPassword,
+  getUserProfile,
+  changePassword,
+  updateProfile,
+  getAllUsers,
+  getUser,
+  updateUser,
+  deleteUser
+} = require('../controllers/authController');
+
+const router = express.Router();
+const { isAuthenticatedUser, authorizeRoles } = require('../middlewares/authenticate');
+
+// User routes
+router.route('/register').post(upload.single('avatar'), registerUser);
+router.route('/login').post(loginUser);
+router.route('/logout').get(logoutUser);
+router.route('/password/forgot').post(forgotPassword);
+router.route('/password/reset/:token').post(resetPassword);
+router.route('/password/change').put(isAuthenticatedUser, changePassword);
+router.route('/myprofile').get(isAuthenticatedUser, getUserProfile);
+router.route('/update').put(isAuthenticatedUser, upload.single('avatar'), updateProfile);
+
+// Admin routes
+router.route('/admin/users').get(isAuthenticatedUser, authorizeRoles('admin'), getAllUsers);
+router.route('/admin/user/:id')
+  .get(isAuthenticatedUser, authorizeRoles('admin'), getUser)
+  .put(isAuthenticatedUser, authorizeRoles('admin'), updateUser)
+  .delete(isAuthenticatedUser, authorizeRoles('admin'), deleteUser);
+
+module.exports = router;
