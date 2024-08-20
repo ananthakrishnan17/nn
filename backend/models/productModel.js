@@ -1,40 +1,36 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-    name: {
-        type: String,  // Corrected capitalization
-        required: [true, "please enter product name"],
+    name : {
+        type: String,
+        required: [true, "Please enter product name"],
         trim: true,
-        maxLength: [100, "product name cannot exceed 100 characters"]  // Corrected typo in message
+        maxLength: [100, "Product name cannot exceed 100 characters"]
     },
     price: {
-        type: Number,  // Corrected capitalization
-        required: [true, "please enter product price"],  // Added missing error message
+        type: Number,
+        required: true,
         default: 0.0
     },
     description: {
-        type: String,  // Corrected capitalization
-        required: [true, "please enter product description"]
+        type: String,
+        required: [true, "Please enter product description"]
     },
     ratings: {
-        type: Number,  // Corrected data type
+        type: String,
         default: 0
     },
-    images: [  // Corrected property name
+    images: [
         {
-            public_id: {  // Added public_id field
-                type: String
-               
-            },
-            url: {
-                type: String
-                
+            image: {
+                type: String,
+                required: true
             }
         }
     ],
     category: {
-        type: String,  // Corrected capitalization
-        required: [true, "please enter product category"],
+        type: String,
+        required: [true, "Please enter product category"],
         enum: {
             values: [
                 'Electronics',
@@ -44,48 +40,54 @@ const productSchema = new mongoose.Schema({
                 'Headphones',
                 'Food',
                 'Books',
-                'Clothes/Shoes',  // Corrected capitalization
+                'Clothes/Shoes',
                 'Beauty/Health',
                 'Sports',
                 'Outdoor',
                 'Home'
             ],
-            message: "please select correct category"
+            message : "Please select correct category"
         }
     },
     seller: {
-        type: String,  // Corrected capitalization
-        required: [true, "please enter product seller"]
+        type: String,
+        required: [true, "Please enter product seller"]
     },
     stock: {
-        type: Number,  // Corrected capitalization
-        required: [true, "please enter product stock"],
-        maxLength: [20, 'product stock cannot exceed 20']  // Corrected error message
+        type: Number,
+        required: [true, "Please enter product stock"],
+        maxLength: [20, 'Product stock cannot exceed 20']
     },
     numOfReviews: {
-        type: Number,  // Corrected capitalization
+        type: Number,
         default: 0
     },
     reviews: [
         {
-            name: {
-                type: String,  // Corrected capitalization
-                required: true
+            user:{
+                type:mongoose.Schema.Types.ObjectId,
+                ref: 'User'
             },
             rating: {
-                type: Number,  // Corrected data type
+                type: String,
                 required: true
             },
             comment: {
-                type: String,  // Corrected capitalization
+                type: String,
                 required: true
             }
         }
     ],
-    createdAt: {  // Corrected property name
-        type: Date,
-        default: Date.now
+    user: {
+        type : mongoose.Schema.Types.ObjectId
     }
-});
+    ,
+    createdAt:{
+        type: Date,
+        default: Date.now()
+    }
+})
 
-module.exports = mongoose.model('Product', productSchema);
+let schema = mongoose.model('Product', productSchema)
+
+module.exports = schema
